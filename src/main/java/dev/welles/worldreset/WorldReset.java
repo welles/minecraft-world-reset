@@ -12,6 +12,7 @@ public final class WorldReset {
     private WorldReset() {}
 
     public static void init(Path configDir) {
+        ResetConfig.init(configDir);
         LOGGER.info("World Reset loaded");
     }
 }
