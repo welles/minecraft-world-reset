@@ -1,6 +1,10 @@
 package dev.welles.worldreset;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.slf4j.Logger;
@@ -43,5 +47,9 @@ public final class WorldReset {
     public static void onStop() {
         data = null;
         tracker = null;
+    }
+
+    public static boolean onUseCampfire(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player) {
+        return data != null && tracker.useCampfire(level, pos, state, player, data);
     }
 }

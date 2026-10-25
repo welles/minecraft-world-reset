@@ -28,6 +28,15 @@ public final class ResetConfig {
     public Map<String, Integer> altarBlocks = radii(
         "minecraft:copper_block=1,minecraft:iron_block=2,minecraft:gold_block=3,minecraft:diamond_block=4,minecraft:netherite_block=5");
     public boolean soulCampfires = true;
+    public int borderSeconds = 10;
+
+    public boolean showMessages = true;
+    public String enterHomeMessage = "You are home.";
+    public String leaveHomeMessage = "You leave your home. The wilderness resets {days} days after your last visit.";
+    public String altarLitMessage = "Fire altar lit: the surrounding {size}x{size} chunks are your home.";
+    public String altarLostMessage = "Fire altar extinguished: this area is no longer protected.";
+    public String altarInfoMessage = "Fire altar: protects the surrounding {size}x{size} chunks.";
+    public String altarHintMessage = "A lit campfire on a copper, iron, gold, diamond or netherite block becomes a fire altar.";
 
     private static final String HEADER = """
         World Reset configuration
@@ -47,7 +56,15 @@ public final class ResetConfig {
         altarBlocks         Comma separated block=radius pairs. A lit campfire on one of these blocks is a fire altar
                             that protects the chunks within the radius around its chunk (radius 1 = 3x3 chunks).
                             All oxidation stages and waxed variants of copper count as minecraft:copper_block.
-        soulCampfires       Soul campfires can be fire altars too.""";
+        soulCampfires       Soul campfires can be fire altars too.
+        borderSeconds       How long the border of a fire altar is shown after using it with an empty hand.
+        showMessages        Show action bar messages when entering or leaving a home and when an altar changes.
+        enterHomeMessage    Shown when entering a protected area.
+        leaveHomeMessage    Shown when leaving a protected area. {days} = resetAfterDays.
+        altarLitMessage     Shown when a fire altar is lit. {size} = side length of the protected area in chunks.
+        altarLostMessage    Shown when a fire altar is extinguished or removed.
+        altarInfoMessage    Shown when using a fire altar with an empty hand. {size} = see above.
+        altarHintMessage    Shown when using a campfire that is not a fire altar with an empty hand.""";
 
     /** Radius of the area protected by a fire altar on {@code blockId}, or -1 if it is not an altar block. */
     public int altarRadius(String blockId) {
@@ -120,6 +137,14 @@ public final class ResetConfig {
         dimensions = list(props, "dimensions", dimensions);
         altarBlocks = radii(props, "altarBlocks", altarBlocks);
         soulCampfires = bool(props, "soulCampfires", soulCampfires);
+        borderSeconds = integer(props, "borderSeconds", borderSeconds, 0, 600);
+        showMessages = bool(props, "showMessages", showMessages);
+        enterHomeMessage = props.getProperty("enterHomeMessage", enterHomeMessage);
+        leaveHomeMessage = props.getProperty("leaveHomeMessage", leaveHomeMessage);
+        altarLitMessage = props.getProperty("altarLitMessage", altarLitMessage);
+        altarLostMessage = props.getProperty("altarLostMessage", altarLostMessage);
+        altarInfoMessage = props.getProperty("altarInfoMessage", altarInfoMessage);
+        altarHintMessage = props.getProperty("altarHintMessage", altarHintMessage);
         return props.keySet().containsAll(toProperties().keySet());
     }
 
@@ -143,6 +168,14 @@ public final class ResetConfig {
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining(",")));
         props.put("soulCampfires", String.valueOf(soulCampfires));
+        props.put("borderSeconds", String.valueOf(borderSeconds));
+        props.put("showMessages", String.valueOf(showMessages));
+        props.put("enterHomeMessage", enterHomeMessage);
+        props.put("leaveHomeMessage", leaveHomeMessage);
+        props.put("altarLitMessage", altarLitMessage);
+        props.put("altarLostMessage", altarLostMessage);
+        props.put("altarInfoMessage", altarInfoMessage);
+        props.put("altarHintMessage", altarHintMessage);
         return props;
     }
 

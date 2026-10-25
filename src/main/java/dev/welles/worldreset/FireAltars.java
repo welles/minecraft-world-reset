@@ -1,17 +1,24 @@
 package dev.welles.worldreset;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /** Fire altars: lit campfires on an altar block (see {@link ResetConfig#altarBlocks}) that protect a home area. */
 public final class FireAltars {
+    /** Players within this distance of an altar are told when it is lit or extinguished. */
+    private static final double NOTIFY_DISTANCE = 32;
+
     private FireAltars() {}
 
     /** The radius protected by a campfire with {@code below} under it, or -1 if it is not a fire altar. */
@@ -30,8 +37,13 @@ public final class FireAltars {
         };
     }
 
-    /** Looks for altars in a loaded chunk and records them. */
-    public static void scan(LevelChunk chunk, ResetData.Dimension dimension, ResetConfig config) {
+    /** Side length in chunks of the area protected by an altar with the given radius. */
+    public static int size(int radius) {
+        return 2 * radius + 1;
+    }
+
+    /** Looks for altars in a loaded chunk, records them and tells nearby players about altars that were lit or put out. */
+    public static void scan(ServerLevel level, LevelChunk chunk, ResetData.Dimension dimension, ResetConfig config) {
         // ChunkPos became a record in 26.1, its block coordinates are available in every version
         int chunkX = chunk.getPos().getMinBlockX() >> 4;
         int chunkZ = chunk.getPos().getMinBlockZ() >> 4;
@@ -45,5 +57,23 @@ public final class FireAltars {
         List<ResetData.Altar> previous = dimension.altars(chunkX, chunkZ);
         if (Set.copyOf(previous).equals(Set.copyOf(found))) return;
         dimension.setAltars(chunkX, chunkZ, found);
+
+        Set<BlockPos> remaining = new HashSet<>();
+        for (ResetData.Altar altar : found) {
+            remaining.add(new BlockPos(altar.x(), altar.y(), altar.z()));
+            if (!previous.contains(altar)) notify(level, altar, config.altarLitMessage.replace("{size}", String.valueOf(size(altar.radius()))), config);
+        }
+        for (ResetData.Altar altar : previous) {
+            if (!remaining.contains(new BlockPos(altar.x(), altar.y(), altar.z()))) notify(level, altar, config.altarLostMessage, config);
+        }
+    }
+
+    private static void notify(ServerLevel level, ResetData.Altar altar, String message, ResetConfig config) {
+        if (!config.showMessages) return;
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(altar.x() + 0.5, altar.y() + 0.5, altar.z() + 0.5) <= NOTIFY_DISTANCE * NOTIFY_DISTANCE) {
+                player.sendSystemMessage(Component.literal(message), true);
+            }
+        }
     }
 }
