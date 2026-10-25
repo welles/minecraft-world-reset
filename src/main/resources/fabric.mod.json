@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Everything outside of claimed home areas regenerates some time after the last player left it.",
+  "authors": [
+    "Nico Welles"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.welles.worldreset.WorldResetFabric"
+    ]
+  },
+  "mixins": [
+    "worldreset.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "minecraft": "${minecraft}"
+  }
+}
