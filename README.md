@@ -53,6 +53,8 @@ All logic runs on the server, so the mod works
 
 `config/worldreset.properties` is created on first start. Changes are applied automatically while the game is
 running; resets use the values at the time the world is loaded.
+On NeoForge it can also be edited in game: *Mods → World Reset → Config*. It changes the file of the game it is
+opened in (e.g. for singleplayer worlds), not the config of a server you are connected to.
 
 | Key                | Default                     | Description                                                                                  |
 |--------------------|-----------------------------|----------------------------------------------------------------------------------------------|
