@@ -12,6 +12,9 @@
   "entrypoints": {
     "main": [
       "dev.welles.worldreset.WorldResetFabric"
+    ],
+    "modmenu": [
+      "dev.welles.worldreset.WorldResetModMenu"
     ]
   },
   "mixins": [
