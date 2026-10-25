@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Settings stored in {@code config/worldreset.properties}.
@@ -24,12 +25,16 @@ public final class ResetConfig {
     public int visitRadius = 4;
     public List<String> dimensions = List.of("minecraft:overworld", "minecraft:the_nether");
 
+    public Map<String, Integer> altarBlocks = radii(
+        "minecraft:copper_block=1,minecraft:iron_block=2,minecraft:gold_block=3,minecraft:diamond_block=4,minecraft:netherite_block=5");
+    public boolean soulCampfires = true;
+
     private static final String HEADER = """
         World Reset configuration
         Changes are picked up automatically, no restart required.
 
         Chunks are reset when the world is loaded (server start / opening the singleplayer world),
-        if no player has been near them for resetAfterDays in-game days.
+        if no player has been near them for resetAfterDays in-game days and no fire altar protects them.
         A reset chunk is deleted from the world files (blocks, entities, points of interest) and
         generated again from the world seed the next time it is loaded.
 
@@ -38,7 +43,16 @@ public final class ResetConfig {
         resetAfterDays      In-game days (20 minutes of play each) since the last visit before a chunk is reset.
         visitRadius         Chunks within this radius around a player count as visited.
                             Chunks the player only sees from further away reset resetAfterDays after they were first seen.
-        dimensions          Comma separated dimensions whose chunks are reset (e.g. minecraft:overworld,minecraft:the_nether).""";
+        dimensions          Comma separated dimensions whose chunks are reset (e.g. minecraft:overworld,minecraft:the_nether).
+        altarBlocks         Comma separated block=radius pairs. A lit campfire on one of these blocks is a fire altar
+                            that protects the chunks within the radius around its chunk (radius 1 = 3x3 chunks).
+                            All oxidation stages and waxed variants of copper count as minecraft:copper_block.
+        soulCampfires       Soul campfires can be fire altars too.""";
+
+    /** Radius of the area protected by a fire altar on {@code blockId}, or -1 if it is not an altar block. */
+    public int altarRadius(String blockId) {
+        return altarBlocks.getOrDefault(blockId, -1);
+    }
 
     private static Path file;
     private static FileTime loadedAt;
@@ -104,6 +118,8 @@ public final class ResetConfig {
         resetAfterDays = integer(props, "resetAfterDays", resetAfterDays, 1, 100000);
         visitRadius = integer(props, "visitRadius", visitRadius, 0, 32);
         dimensions = list(props, "dimensions", dimensions);
+        altarBlocks = radii(props, "altarBlocks", altarBlocks);
+        soulCampfires = bool(props, "soulCampfires", soulCampfires);
         return props.keySet().containsAll(toProperties().keySet());
     }
 
@@ -123,6 +139,10 @@ public final class ResetConfig {
         props.put("resetAfterDays", String.valueOf(resetAfterDays));
         props.put("visitRadius", String.valueOf(visitRadius));
         props.put("dimensions", String.join(",", dimensions));
+        props.put("altarBlocks", altarBlocks.entrySet().stream()
+            .map(e -> e.getKey() + "=" + e.getValue())
+            .collect(Collectors.joining(",")));
+        props.put("soulCampfires", String.valueOf(soulCampfires));
         return props;
     }
 
@@ -146,5 +166,26 @@ public final class ResetConfig {
         String value = props.getProperty(key);
         if (value == null) return fallback;
         return Arrays.stream(value.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
+    }
+
+    private static Map<String, Integer> radii(Properties props, String key, Map<String, Integer> fallback) {
+        String value = props.getProperty(key);
+        return value == null ? fallback : radii(value);
+    }
+
+    /** Parses comma separated {@code block=radius} pairs. */
+    private static Map<String, Integer> radii(String value) {
+        Map<String, Integer> radii = new LinkedHashMap<>();
+        for (String pair : value.split(",")) {
+            if (pair.isBlank()) continue;
+            int separator = pair.lastIndexOf('=');
+            try {
+                if (separator < 0) throw new NumberFormatException();
+                radii.put(pair.substring(0, separator).trim(), Math.clamp(Integer.parseInt(pair.substring(separator + 1).trim()), 0, 32));
+            } catch (NumberFormatException e) {
+                WorldReset.LOGGER.warn("Invalid entry for altarBlocks: {} (expected block=radius)", pair);
+            }
+        }
+        return radii;
     }
 }

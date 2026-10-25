@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-/** Runs on the server thread while the world is loaded and records which chunks players visit. */
+/** Runs on the server thread while the world is loaded: records visits and finds fire altars. */
 public final class HomeTracker {
     private static final int VISIT_INTERVAL = 100;
 
@@ -32,6 +32,7 @@ public final class HomeTracker {
                     if (chunk == null) continue;
                     if (Math.abs(x - centerX) <= config.visitRadius && Math.abs(z - centerZ) <= config.visitRadius) {
                         dimension.visit(x, z, now);
+                        FireAltars.scan(chunk, dimension, config);
                     } else {
                         dimension.see(x, z, now);
                     }

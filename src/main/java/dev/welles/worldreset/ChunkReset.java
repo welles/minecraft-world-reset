@@ -73,6 +73,7 @@ public final class ChunkReset {
                     int chunkX = regionX * 32 + (index & 31);
                     int chunkZ = regionZ * 32 + (index >> 5);
                     if (now - dimension.lastVisit(chunkX, chunkZ, data.installTime) < maxAge) continue;
+                    if (dimension.isProtected(chunkX, chunkZ)) continue;
                     expired.add(index);
                 }
                 if (expired.isEmpty()) continue;
