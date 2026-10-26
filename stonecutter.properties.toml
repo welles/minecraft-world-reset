@@ -2,7 +2,7 @@
 mod.id = "worldreset"
 mod.name = "World Reset"
 mod.group = "dev.welles.worldreset"
-mod.version = "1.0.0"
+mod.version = "0.0.0-dev"
 
 deps.fabric_loader = "0.19.5"
 # Minimum Fabric Loader version required at runtime
