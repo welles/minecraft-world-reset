@@ -10,6 +10,9 @@ version = "${version}"
 authors = "Nico Welles"
 displayTest = "IGNORE_SERVER_VERSION" # server-side only, clients do not need the mod
 description = "Everything outside of claimed home areas regenerates some time after the last player left it."
+${icon}File = "assets/${id}/icon.png"
+# pixel art, scaled without smoothing
+${icon}Blur = false
 
 [[mixins]]
 config = "worldreset.mixins.json"

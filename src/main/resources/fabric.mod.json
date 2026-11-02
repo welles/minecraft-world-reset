@@ -4,6 +4,7 @@
   "version": "${version}",
   "name": "${name}",
   "description": "Everything outside of claimed home areas regenerates some time after the last player left it.",
+  "icon": "assets/${id}/icon.png",
   "authors": [
     "Nico Welles"
   ],

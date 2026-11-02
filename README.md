@@ -1,3 +1,5 @@
+<img src="src/main/resources/assets/worldreset/icon.png" alt="" width="128" align="right">
+
 # World Reset
 
 A Minecraft mod for **Fabric** and **NeoForge** (Minecraft 1.21.1 – 26.3) that lets the wilderness grow back, inspired
