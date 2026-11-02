@@ -56,6 +56,8 @@ running; resets use the values at the time the world is loaded.
 It can also be edited in game: on NeoForge in *Mods → World Reset → Config*, on Fabric through
 [Mod Menu](https://modrinth.com/mod/modmenu). It changes the file of the game it is opened in (e.g. for singleplayer
 worlds), not the config of a server you are connected to.
+Invalid values, such as numbers outside their range, are marked red and cannot be saved; every value can be reset to
+its default, one at a time or all at once.
 
 | Key                | Default                     | Description                                                                                  |
 |--------------------|-----------------------------|----------------------------------------------------------------------------------------------|

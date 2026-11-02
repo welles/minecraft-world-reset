@@ -13,7 +13,10 @@ public class WorldResetModMenu implements ModMenuApi {
         return parent -> new ConfigScreen(
             parent,
             FabricLoader.getInstance().getConfigDir().resolve(WorldReset.MOD_ID + ".properties"),
-            Component.literal(FabricLoader.getInstance().getModContainer(WorldReset.MOD_ID).map(mod -> mod.getMetadata().getName()).orElse(WorldReset.MOD_ID))
+            Component.literal(FabricLoader.getInstance().getModContainer(WorldReset.MOD_ID).map(mod -> mod.getMetadata().getName()).orElse(WorldReset.MOD_ID)),
+            ResetConfig.defaults(),
+            ResetConfig.RANGES,
+            ResetConfig.CHOICES
         );
     }
 }

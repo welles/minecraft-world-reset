@@ -19,6 +19,15 @@ import java.util.stream.Collectors;
  * The file is re-read automatically whenever it changes on disk.
  */
 public final class ResetConfig {
+    /** The allowed values of each number setting; values outside are clamped. */
+    public static final Map<String, Range> RANGES = Map.of(
+        "resetAfterDays", new Range(1, 100000),
+        "visitRadius", new Range(0, 32),
+        "borderSeconds", new Range(0, 600)
+    );
+    /** The allowed values of each setting with a fixed set of them. */
+    public static final Map<String, List<String>> CHOICES = Map.of();
+
     public boolean enabled = true;
     public boolean dryRun = false;
     public int resetAfterDays = 7;
@@ -132,12 +141,12 @@ public final class ResetConfig {
     private boolean read(Properties props) {
         enabled = bool(props, "enabled", enabled);
         dryRun = bool(props, "dryRun", dryRun);
-        resetAfterDays = integer(props, "resetAfterDays", resetAfterDays, 1, 100000);
-        visitRadius = integer(props, "visitRadius", visitRadius, 0, 32);
+        resetAfterDays = integer(props, "resetAfterDays", resetAfterDays);
+        visitRadius = integer(props, "visitRadius", visitRadius);
         dimensions = list(props, "dimensions", dimensions);
         altarBlocks = radii(props, "altarBlocks", altarBlocks);
         soulCampfires = bool(props, "soulCampfires", soulCampfires);
-        borderSeconds = integer(props, "borderSeconds", borderSeconds, 0, 600);
+        borderSeconds = integer(props, "borderSeconds", borderSeconds);
         showMessages = bool(props, "showMessages", showMessages);
         enterHomeMessage = props.getProperty("enterHomeMessage", enterHomeMessage);
         leaveHomeMessage = props.getProperty("leaveHomeMessage", leaveHomeMessage);
@@ -155,6 +164,11 @@ public final class ResetConfig {
             String value = entry.getValue().replace("\\", "\\\\").replace("\n", "\\n");
             writer.write(entry.getKey() + "=" + value + "\n");
         }
+    }
+
+    /** The default value of every setting, as written to the file. */
+    public static Map<String, String> defaults() {
+        return new ResetConfig().toProperties();
     }
 
     private Map<String, String> toProperties() {
@@ -184,11 +198,11 @@ public final class ResetConfig {
         return value == null ? fallback : Boolean.parseBoolean(value.trim());
     }
 
-    private static int integer(Properties props, String key, int fallback, int min, int max) {
+    private static int integer(Properties props, String key, int fallback) {
         String value = props.getProperty(key);
         if (value == null) return fallback;
         try {
-            return Math.clamp(Integer.parseInt(value.trim()), min, max);
+            return (int) RANGES.get(key).clamp(Integer.parseInt(value.trim()));
         } catch (NumberFormatException e) {
             WorldReset.LOGGER.warn("Invalid number for {}: {}", key, value);
             return fallback;
@@ -220,5 +234,15 @@ public final class ResetConfig {
             }
         }
         return radii;
+    }
+
+    public record Range(double min, double max) {
+        public double clamp(double value) {
+            return Math.clamp(value, min, max);
+        }
+
+        public boolean contains(double value) {
+            return value >= min && value <= max;
+        }
     }
 }
