@@ -1,5 +1,5 @@
 ---
-summary: The wilderness grows back! Guard your home with a fire altar while the rest of the world renews.
+summary: The wilderness grows back! Unvisited chunks regenerate with fresh ores, trees and loot, while a fire altar guards your home. Inspired by Enshrouded, no commands needed, server-side only.
 ---
 
 > ⚠️ **This project is AI-generated.** The code, this description and the icon of this mod were created with generative AI (Claude by Anthropic), directed by the author. Please keep that in mind, and report any problems on GitHub.
