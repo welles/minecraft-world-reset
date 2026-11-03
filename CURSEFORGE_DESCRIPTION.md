@@ -1,3 +1,7 @@
+---
+summary: The wilderness grows back! Guard your home with a fire altar while the rest of the world renews.
+---
+
 > ⚠️ **This project is AI-generated.** The code, this description and the icon of this mod were created with generative AI (Claude by Anthropic), directed by the author. Please keep that in mind, and report any problems on GitHub.
 
 # World Reset
